@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "nodemon server.ts"
+   "dev": "nodemon --exec tsx server.ts"
   },
   "repository": {
     "type": "git",
@@ -20,12 +20,17 @@
   "homepage": "https://github.com/ihuzaifa404/Expressjs-learning-project#readme",
   "devDependencies": {
     "@eslint/js": "^10.0.1",
+    "@types/express": "^5.0.6",
     "@types/node": "^25.5.2",
     "eslint": "^10.2.0",
     "globals": "^17.4.0",
     "nodemon": "^3.1.14",
     "ts-node": "^10.9.2",
+    "tsx": "^4.21.0",
     "typescript": "^6.0.2",
     "typescript-eslint": "^8.58.1"
+  },
+  "dependencies": {
+    "express": "^5.2.1"
   }
 }

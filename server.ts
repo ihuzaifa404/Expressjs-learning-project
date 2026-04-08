@@ -1,1 +1,5 @@
-console.log("wellcome to ebook api")
+import app from "./src/app.js";
+
+app.listen(300, ()=>{
+    console.log("Server is running")
+})
