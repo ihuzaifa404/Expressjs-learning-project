@@ -1,0 +1,27 @@
+{
+  "name": "expressjs-learning-project",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "nodemon server.ts"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ihuzaifa404/Expressjs-learning-project.git"
+  },
+  "keywords": [],
+  "author": "M Huzaifa Butt-<zafibutt459@gmail.com>",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/ihuzaifa404/Expressjs-learning-project/issues"
+  },
+  "homepage": "https://github.com/ihuzaifa404/Expressjs-learning-project#readme",
+  "devDependencies": {
+    "@types/node": "^25.5.2",
+    "nodemon": "^3.1.14",
+    "ts-node": "^10.9.2",
+    "typescript": "^6.0.2"
+  }
+}
