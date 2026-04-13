@@ -1,3 +1,6 @@
+import { config as conf } from "dotenv";
+
+conf();
 //to make object private use _ not actually private
 const _config = {
   port: process.env.PORT,
