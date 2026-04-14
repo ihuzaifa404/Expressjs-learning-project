@@ -4,15 +4,8 @@ import userRouter from './user/userRouter';
 
 const app = express();
 
-//Routes
-
-// app.get('/', (req, res, next) => {
-  
-  
-//    res.json({ message: 'Hello this is Product 1' });
-  
-// });
 app.use(express.json())
+
 app.use("/api/users",userRouter)
 
 app.use(globalErrorHandler)
