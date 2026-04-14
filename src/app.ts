@@ -1,4 +1,4 @@
-import express,  from 'express';
+import express from 'express';
 import globalErrorHandler from './middlewares/globalErrorHandler';
 import userRouter from './user/userRouter';
 
