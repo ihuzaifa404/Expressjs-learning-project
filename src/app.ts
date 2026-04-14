@@ -7,10 +7,16 @@ const app = express();
 //Routes
 
 app.get('/', (req, res, next) => {
-  res.json({ message: 'Hello this is Product 1' });
-
-  const error = createHttpError(400,'Something went wrong');
-  throw error;
+  try {
+    const isError = true;
+    if (isError) {
+      const error = createHttpError(400, 'Something went wrong');
+      return next(error);
+    }
+    res.json({ message: 'Hello this is Product 1' });
+  } catch (error) {
+    next(error);
+  }
 });
 
 app.use((err: HttpError, req: Request, res: Response, next: NextFunction) => {
@@ -18,7 +24,7 @@ app.use((err: HttpError, req: Request, res: Response, next: NextFunction) => {
 
   return res.status(statusCode).json({
     message: err.message,
-    errorStack: config.env === 'development' ? err.stack : '',
+    errorStack: config.env === 'development' ? err.stack : undefined,
   });
 });
 
