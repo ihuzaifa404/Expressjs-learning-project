@@ -12,7 +12,7 @@ const app = express();
 //    res.json({ message: 'Hello this is Product 1' });
   
 // });
-
+app.use(express.json())
 app.use("/api/users",userRouter)
 
 app.use(globalErrorHandler)
