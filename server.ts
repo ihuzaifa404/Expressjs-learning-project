@@ -3,7 +3,7 @@ import { config } from './src/config/config.js';
 import connectDB from './src/config/db.js';
 
 const startServer = async () => {
-  const port = config.port || 3000;
+  const port = config.port || 5000;
 
   await connectDB();
   
