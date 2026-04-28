@@ -5,7 +5,8 @@ conf();
 const _config = {
   port: process.env.PORT,
   dbUrl:process.env.MONGOOSE_CONNECTION_STRING,
-  env:process.env.NODE_ENV
+  env:process.env.NODE_ENV,
+  jwt:process.env.JWT_SECRET
 };
 
 //Object.freeze :> to make the object readonly
