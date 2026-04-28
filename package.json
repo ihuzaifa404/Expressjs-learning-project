@@ -25,6 +25,7 @@
   "homepage": "https://github.com/ihuzaifa404/Expressjs-learning-project#readme",
   "devDependencies": {
     "@eslint/js": "^10.0.1",
+    "@types/bcrypt": "^6.0.0",
     "@types/dotenv": "^6.1.1",
     "@types/express": "^5.0.6",
     "@types/http-errors": "^2.0.5",
@@ -40,6 +41,7 @@
     "typescript-eslint": "^8.58.1"
   },
   "dependencies": {
+    "bcrypt": "^6.0.0",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
     "http-errors": "^2.0.1"
