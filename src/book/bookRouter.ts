@@ -15,7 +15,7 @@ const upload = multer({
 });
 
 bookRouter.post(
-  '/',
+  '/create',
   upload.fields([
     { name: 'coverImage', maxCount: 1 },
     { name: 'file', maxCount: 1 },
