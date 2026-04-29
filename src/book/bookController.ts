@@ -1,9 +1,10 @@
 import { NextFunction, Request, Response } from 'express';
 
-const createBook= async(
-    req: Request, res: Response, next: NextFunction
-)=>{
-        res.status(201).json({message: "Book created!"})
-}
+const createBook = async (req: Request, res: Response, next: NextFunction) => {
 
-export {createBook}
+
+    
+  res.status(201).json({ message: 'Book created!' });
+};
+
+export { createBook };
