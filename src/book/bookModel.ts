@@ -8,7 +8,7 @@ const bookSchema = new mongoose.Schema<Book>(
       required: true,
     },
     author: {
-      type: mongoose.Schema.Types.ObjectId,
+      type: String,
       required: true,
     },
     genre: {
@@ -30,3 +30,5 @@ const bookSchema = new mongoose.Schema<Book>(
 const bookModel = mongoose.model<Book>('book', bookSchema);
 
 export default bookModel;
+
+// type: mongoose.Schema.Types.ObjectId,
