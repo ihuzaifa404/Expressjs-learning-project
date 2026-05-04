@@ -40,19 +40,13 @@ const createBook = async (req: Request, res: Response, next: NextFunction) => {
       folder: 'book-pdfs',
       
     });
-
-    try {
-      await fs.promises.unlink(filePath)
-      await fs.promises.unlink(filePdfPath)
-      
-    } catch (error) {
-         return next(createHttpError(500, "Failed to delete Local files"));
-    }
     
     console.log('UploadImageResult:', uploadImageResult);
     console.log("UploadFileResult: ",uploadFileResult)
 
-
+    // @ts-ignore
+    console.log("UserID: ",req.userId )
+    
     const newBook=await bookModel.create({
       title,
       author:"69f21f1bf44075201f1774c9",
@@ -60,9 +54,17 @@ const createBook = async (req: Request, res: Response, next: NextFunction) => {
       coverImage:uploadImageResult.secure_url,
       file:uploadFileResult.secure_url
     })
-
-
-    res.status(201).json({ message: 'Book created!' });
+    
+    
+        try {
+          await fs.promises.unlink(filePath)
+          await fs.promises.unlink(filePdfPath)
+          
+        } catch (error) {
+             return next(createHttpError(500, "Failed to delete Local files"));
+        }
+    
+    res.status(201).json({ id:newBook._id});
   } catch (error) {
     return next(createHttpError(500, "Error while uploading files"));
   }
