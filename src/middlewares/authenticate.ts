@@ -3,7 +3,7 @@ import createHttpError from 'http-errors';
 import jwt from 'jsonwebtoken';
 import { config } from '../config/config';
 
-interface AuthRequest extends Request {
+export interface AuthRequest extends Request {
   userId: string;
 }
 

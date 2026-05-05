@@ -1,5 +1,6 @@
-import mongoose from 'mongoose';
+import mongoose, { mongo } from 'mongoose';
 import { Book } from '../types/book';
+
 
 const bookSchema = new mongoose.Schema<Book>(
   {
@@ -8,7 +9,7 @@ const bookSchema = new mongoose.Schema<Book>(
       required: true,
     },
     author: {
-      type: String,
+      type: mongoose.Schema.Types.ObjectId,
       required: true,
     },
     genre: {
@@ -31,4 +32,4 @@ const bookModel = mongoose.model<Book>('book', bookSchema);
 
 export default bookModel;
 
-// type: mongoose.Schema.Types.ObjectId,
+
