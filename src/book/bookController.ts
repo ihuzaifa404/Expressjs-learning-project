@@ -153,10 +153,10 @@ const listBook=async(req: Request, res: Response, next: NextFunction)=>{
 
 const getSingleBook=async(req: Request, res: Response, next: NextFunction)=>{
 
-console.log("Request aayi hai! ID is:", req.params.bookId);
 
+
+ 
   const bookId=req.params.bookId;
-
   try {
     const book=await bookModel.findOne({_id:bookId})
 
