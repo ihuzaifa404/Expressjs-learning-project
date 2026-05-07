@@ -104,7 +104,12 @@ const updateBook = async (req: Request, res: Response, next: NextFunction) => {
 
     completeCoverImage = uploadImageResult.secure_url;
     await fs.promises.unlink(filePath);
+
+    const coverImagesplit = book.coverImage.split('/');
+    const coverImagePublicId = coverImagesplit.at(-2) + '/' + coverImagesplit.at(-1)?.split('.').at(-2);
+    await cloudinary.uploader.destroy(coverImagePublicId);
   }
+
   let completeFile = '';
   if (files.file) {
     const __filename = fileURLToPath(import.meta.url);
@@ -123,6 +128,13 @@ const updateBook = async (req: Request, res: Response, next: NextFunction) => {
 
     completeFile = uploadFileResult.secure_url;
     await fs.promises.unlink(filePdfPath);
+
+    const bookFileSplit = book.file.split('/');
+    const bookFilePublicId = bookFileSplit.at(-2) + '/' + bookFileSplit.at(-1)?.split('.').at(-2);
+
+    await cloudinary.uploader.destroy(bookFilePublicId,{
+      resource_type: 'image'
+    });
   }
 
   const updatedBook = await bookModel.findOneAndUpdate(
