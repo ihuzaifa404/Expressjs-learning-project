@@ -10,6 +10,7 @@ const _config = {
   cloudinaryCloudName: process.env.CLOUDINARY_CLOUD,
   cloudinaryApiKey: process.env.CLOUDINARY_API_KEY,
   cloudinaryApiSecret: process.env.CLOUDINARY_API_SECRET,
+  frontenedOrigin: process.env.FRONTENED_ORIGIN,
 };
 
 //Object.freeze :> to make the object readonly
