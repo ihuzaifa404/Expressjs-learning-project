@@ -134,40 +134,80 @@ const updateBook = async (req: Request, res: Response, next: NextFunction) => {
       genre: genre,
       coverImage: completeCoverImage ? completeCoverImage : book.coverImage,
       file: completeFile ? completeFile : book.file,
-    },{new: true}
+    },
+    { new: true },
   );
 
   res.json(updatedBook);
 };
 
-const listBook=async(req: Request, res: Response, next: NextFunction)=>{
-
+const listBook = async (req: Request, res: Response, next: NextFunction) => {
   try {
-
-  const book=await bookModel.find()
-    res.json(book)
+    const book = await bookModel.find();
+    res.json(book);
   } catch (error) {
-    return next(createHttpError(404, "Book not Found"))
+    return next(createHttpError(404, 'Book not Found'));
   }
-}
+};
 
-const getSingleBook=async(req: Request, res: Response, next: NextFunction)=>{
-
-
-
- 
-  const bookId=req.params.bookId;
+const getSingleBook = async (req: Request, res: Response, next: NextFunction) => {
+  const bookId = req.params.bookId;
   try {
-    const book=await bookModel.findOne({_id:bookId})
+    const book = await bookModel.findOne({ _id: bookId });
 
     if (!book) {
-      return next(createHttpError(404, "Book not Found"))
+      return next(createHttpError(404, 'Book not Found'));
     }
 
-    res.json(book)
+    res.json(book);
   } catch (error) {
-    return next(createHttpError(500, "Failed to get Book"))
+    return next(createHttpError(500, 'Failed to get Book'));
   }
+};
 
-}
-export { createBook, updateBook,listBook,getSingleBook };
+const deleteBook = async (req: Request, res: Response, next: NextFunction) => {
+  const bookId = req.params.bookId;
+
+  try {
+    const book = await bookModel.findOne({ _id: bookId });
+
+    if (!book) {
+      return next(createHttpError(404, 'Book not Found'));
+    }
+
+    const _req = req as AuthRequest;
+    if (book.author.toString() !== _req.userId) {
+      return next(createHttpError(403, "Unauthorized! You can't delete other books"));
+    }
+
+    //  book-cover/hanjrtwpivf0qkw3gqs1
+
+    // https://res.cloudinary.com/duaeme7fm/image/upload/v1777996209/book-cover/hanjrtwpivf0qkw3gqs1.png
+
+    const coverImagesplit = book.coverImage.split('/');
+
+    // console.log("coverImagesplit",coverImagesplit)
+
+    const coverImagePublicId = coverImagesplit.at(-2) + '/' + coverImagesplit.at(-1)?.split('.').at(-2);
+
+    // console.log('coverImagePublicId', coverImagePublicId);
+
+    const bookFileSplit = book.file.split('/');
+    // console.log("bookFileSplit:",bookFileSplit)
+    const bookFilePublicId = bookFileSplit.at(-2) + '/' + bookFileSplit.at(-1)?.split('.').at(-2);
+    //  console.log("bookFilePublicId",bookFilePublicId)
+    let deleteItem;
+    try {
+      await cloudinary.uploader.destroy(coverImagePublicId);
+      await cloudinary.uploader.destroy(bookFilePublicId);
+
+      deleteItem = await bookModel.deleteOne({ _id: bookId });
+    } catch (error) {
+      return next(createHttpError(500, 'Failed to delete Books'));
+    }
+    res.status(204).json({ deleteItem });
+  } catch (error) {
+    return next(createHttpError(500, 'Failed to Delete Book'));
+  }
+};
+export { createBook, updateBook, listBook, getSingleBook, deleteBook };
