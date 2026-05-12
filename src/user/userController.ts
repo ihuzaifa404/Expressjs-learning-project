@@ -5,18 +5,16 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { config } from '../config/config';
 import { User } from '../types/user';
+import { AuthRequest } from '../middlewares/authenticate';
 
 const createUser = async (req: Request, res: Response, next: NextFunction) => {
   const { name, email, password } = req.body;
- 
 
   if (!name || !email || !password) {
     const error = createHttpError(400, 'All fields are required!');
 
     return next(error);
   }
-
-  
 
   try {
     const user = await userModel.findOne({ email });
@@ -29,9 +27,7 @@ const createUser = async (req: Request, res: Response, next: NextFunction) => {
     return next(createHttpError(500, 'Error while creating user.'));
   }
 
-
   const hashedPassword = await bcrypt.hash(password, 10);
-
 
   let newUser: User;
 
@@ -45,14 +41,12 @@ const createUser = async (req: Request, res: Response, next: NextFunction) => {
     return next(createHttpError(500, 'Error while creating user.'));
   }
 
- 
   try {
     const token = jwt.sign({ sub: newUser._id }, config.jwt as string, {
       expiresIn: '7d',
     });
 
     res.status(201).json({ accessToken: token });
-
   } catch (error) {
     return next(createHttpError(500, 'Error while signing jwt token!'));
   }
@@ -66,37 +60,49 @@ const loginUser = async (req: Request, res: Response, next: NextFunction) => {
     return next(error);
   }
 
-let user;
+  let user;
 
   try {
-     user = await userModel.findOne({ email });
+    user = await userModel.findOne({ email });
 
     if (!user) {
-
       return next(createHttpError(404, 'User not found'));
     }
   } catch (error) {
-
     return next(createHttpError(500, 'Error while Login'));
   }
 
-  const isMatched = await bcrypt.compare(password, user.password)
+  const isMatched = await bcrypt.compare(password, user.password);
 
-  if(!isMatched){
-    return next(createHttpError(401,"Error! email or password is incorrect"))
+  if (!isMatched) {
+    return next(createHttpError(401, 'Error! email or password is incorrect'));
   }
 
-
-try {
-  const token = jwt.sign({ sub: user._id }, config.jwt as string, {
+  try {
+    const token = jwt.sign({ sub: user._id }, config.jwt as string, {
       expiresIn: '7d',
     });
-    res.status(200).json({ accessToken:token });
-
-} catch (error) {
-  
+    res.status(200).json({ accessToken: token });
+  } catch (error) {
     return next(createHttpError(500, 'Error while signing jwt token!'));
-}
+  }
 };
 
-export { createUser, loginUser };
+const getUserProfile = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const _req = req as AuthRequest;
+    const userId = _req.userId;
+
+    const user = await userModel.findById(userId).select('-password');
+
+    if (!user) {
+      return next(createHttpError(404, 'User not found!'));
+    }
+
+    res.status(200).json(user);
+  } catch (error) {
+    return next(createHttpError(500, 'Error while fetching profile'));
+  }
+};
+
+export { createUser, loginUser, getUserProfile };

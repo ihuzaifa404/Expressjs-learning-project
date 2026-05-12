@@ -1,10 +1,11 @@
-import  express  from 'express';
-import { createUser, loginUser } from './userController';
+import express from 'express';
+import { createUser, getUserProfile, loginUser } from './userController';
+import authenticate from '../middlewares/authenticate';
 
-const userRouter=express.Router();
+const userRouter = express.Router();
 
-userRouter.post('/register',createUser)
-userRouter.post('/login', loginUser)
+userRouter.post('/register', createUser);
+userRouter.post('/login', loginUser);
+userRouter.get('/profile', authenticate, getUserProfile);
 
-
-export default userRouter
+export default userRouter;
