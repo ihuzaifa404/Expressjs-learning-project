@@ -134,7 +134,7 @@ const updateBook = async (req: Request, res: Response, next: NextFunction) => {
       const bookFilePublicId = bookFileSplit.at(-2) + '/' + bookFileSplit.at(-1)?.split('.').at(-2);
 
       await cloudinary.uploader.destroy(bookFilePublicId, {
-        resource_type: 'image',
+        resource_type: 'auto',
       });
     }
 
@@ -159,8 +159,9 @@ const updateBook = async (req: Request, res: Response, next: NextFunction) => {
 
 const listBook = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const book = await bookModel.find();
-    res.json(book);
+    const _req = req as AuthRequest;
+    const books = await bookModel.find({ author: _req.userId });
+    res.json(books);
   } catch (error) {
     return next(createHttpError(500, 'Failed to list Books'));
   }
@@ -174,7 +175,10 @@ const getSingleBook = async (req: Request, res: Response, next: NextFunction) =>
     if (!book) {
       return next(createHttpError(404, 'Book not Found'));
     }
-
+    const _req = req as AuthRequest;
+    if (book.author.toString() !== _req.userId) {
+      return next(createHttpError(403, 'Unauthorized access to this book'));
+    }
     res.json(book);
   } catch (error) {
     return next(createHttpError(500, 'Failed to get Book'));
