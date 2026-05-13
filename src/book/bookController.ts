@@ -169,16 +169,16 @@ const listBook = async (req: Request, res: Response, next: NextFunction) => {
 
 const getSingleBook = async (req: Request, res: Response, next: NextFunction) => {
   const bookId = req.params.bookId;
+  const _req = req as AuthRequest;
   try {
-    const book = await bookModel.findOne({ _id: bookId });
-
+    const book = await bookModel.findOne({
+      _id: bookId,
+      author: _req.userId,
+    });
     if (!book) {
       return next(createHttpError(404, 'Book not Found'));
     }
-    const _req = req as AuthRequest;
-    if (book.author.toString() !== _req.userId) {
-      return next(createHttpError(403, 'Unauthorized access to this book'));
-    }
+
     res.json(book);
   } catch (error) {
     return next(createHttpError(500, 'Failed to get Book'));
