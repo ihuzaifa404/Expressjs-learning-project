@@ -1,5 +1,8 @@
+import dns from 'dns';
 import mongoose from 'mongoose';
 import { config } from './config';
+
+dns.setServers(['8.8.8.8', '8.8.4.4']);
 
 const connectDB = async () => {
   try {
@@ -12,7 +15,12 @@ const connectDB = async () => {
       console.log('Error in connecting the database!!',err);
     });
 
-    await mongoose.connect(config.dbUrl as string);
+    await mongoose.connect(config.dbUrl as string,{
+          family: 4,
+  retryWrites: true,
+  w: 'majority',
+  serverSelectionTimeoutMS: 5000,
+    });
   } catch (error) {
     console.error('Failed to connect database', error);
     process.exit(1);

@@ -4,8 +4,9 @@ import userModel from './userModel';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { config } from '../config/config';
-import { User } from '../types/user';
+
 import { AuthRequest } from '../middlewares/authenticate';
+import { User } from '../schemas/user.schema';
 
 const createUser = async (req: Request, res: Response, next: NextFunction) => {
   const { name, email, password } = req.body;
