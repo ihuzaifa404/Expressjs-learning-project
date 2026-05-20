@@ -1,8 +1,9 @@
-import mongoose, { mongo } from 'mongoose';
-import { Book } from '../types/book';
+import mongoose from 'mongoose';
+
+import {  IBookSchema } from '../schemas/book.schema';
 
 
-const bookSchema = new mongoose.Schema<Book>(
+const bookSchema = new mongoose.Schema<IBookSchema>(
   {
     title: {
       type: String,
@@ -10,6 +11,7 @@ const bookSchema = new mongoose.Schema<Book>(
     },
     author: {
       type: mongoose.Schema.Types.ObjectId,
+      ref:'User',
       required: true,
     },
     genre: {
@@ -28,7 +30,7 @@ const bookSchema = new mongoose.Schema<Book>(
   { timestamps: true },
 );
 
-const bookModel = mongoose.model<Book>('book', bookSchema);
+const bookModel = mongoose.model<IBookSchema>('book', bookSchema);
 
 export default bookModel;
 

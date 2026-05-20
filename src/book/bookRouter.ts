@@ -4,6 +4,8 @@ import multer from 'multer';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import authenticate from '../middlewares/authenticate';
+import { validate } from '../middlewares/validation';
+import { bookIdSchema, createBookSchema, updateBookSchema } from '../schemas/book.schema';
 
 const bookRouter = express.Router();
 
@@ -22,6 +24,7 @@ bookRouter.post(
     { name: 'coverImage', maxCount: 1 },
     { name: 'file', maxCount: 1 },
   ]),
+  validate(createBookSchema),
   createBook,
 );
 
@@ -32,12 +35,13 @@ bookRouter.patch(
     { name: 'coverImage', maxCount: 1 },
     { name: 'file', maxCount: 1 },
   ]),
+  validate(updateBookSchema),
   updateBook,
 );
 
 bookRouter.get('/',authenticate,listBook)
 
-bookRouter.get('/:bookId',authenticate,getSingleBook)
+bookRouter.get('/:bookId',authenticate,validate(bookIdSchema),getSingleBook)
 
-bookRouter.delete("/:bookId",authenticate,deleteBook)
+bookRouter.delete("/:bookId",authenticate,validate(bookIdSchema),deleteBook)
 export default bookRouter;

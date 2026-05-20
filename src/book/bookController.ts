@@ -1,7 +1,5 @@
 import { NextFunction, Request, Response } from 'express';
 import cloudinary from '../config/cloudinary';
-import path from 'node:path';
-import { fileURLToPath } from 'node:url';
 import createHttpError from 'http-errors';
 import fs from 'node:fs';
 import bookModel from './bookModel';
@@ -12,30 +10,25 @@ const createBook = async (req: Request, res: Response, next: NextFunction) => {
     const { title, genre } = req.body;
     const files = req.files as { [fieldname: string]: Express.Multer.File[] };
 
-    if (!files.coverImage || !files.file || !title || !genre) {
-      return next(createHttpError(400, 'All fields are required!.'));
+    if (!files?.coverImage?.[0] || !files?.file?.[0]) {
+        return next(createHttpError(400, "Files are missing"));
     }
-    console.log('files:', files);
+   
+    const coverImageFile = files.coverImage[0];
 
-    const __filename = fileURLToPath(import.meta.url);
-    const __dirname = path.dirname(__filename);
-    const coverImageMimeType = files.coverImage[0].mimetype.split('/').at(-1);
-
-    const fileName = files.coverImage[0].filename;
-    const filePath = path.resolve(__dirname, '../../public/data/uploads', fileName);
-
-    const uploadImageResult = await cloudinary.uploader.upload(filePath, {
-      filename_override: fileName,
+      const coverImageMimeType = coverImageFile.mimetype.split('/').at(-1);
+    const pdfFile = files.file[0];
+    const uploadImageResult = await cloudinary.uploader.upload(coverImageFile.path, {
+  
       folder: 'book-cover',
       format: coverImageMimeType,
     });
 
-    const BookPdfFileName = files.file[0].filename;
-    const filePdfPath = path.resolve(__dirname, '../../public/data/uploads', BookPdfFileName);
+   
 
-    const uploadFileResult = await cloudinary.uploader.upload(filePdfPath, {
-      resource_type: 'auto',
-      filename_override: BookPdfFileName,
+    const uploadFileResult = await cloudinary.uploader.upload(pdfFile.path, {
+      resource_type: 'raw',
+      // filename_override: BookPdfFileName,
       folder: 'book-pdfs',
     });
 
@@ -44,7 +37,7 @@ const createBook = async (req: Request, res: Response, next: NextFunction) => {
 
     const _req = req as AuthRequest;
 
-    console.log('UserID: ', _req.userId);
+    // console.log('UserID: ', _req.userId);
 
     const newBook = await bookModel.create({
       title,
@@ -55,8 +48,8 @@ const createBook = async (req: Request, res: Response, next: NextFunction) => {
     });
 
     try {
-      await fs.promises.unlink(filePath);
-      await fs.promises.unlink(filePdfPath);
+      await fs.promises.unlink(coverImageFile.path);
+      await fs.promises.unlink(pdfFile.path);
     } catch (error) {
       return next(createHttpError(500, 'Failed to delete Local files'));
     }
@@ -86,58 +79,49 @@ const updateBook = async (req: Request, res: Response, next: NextFunction) => {
 
     const files = req.files as { [fieldname: string]: Express.Multer.File[] };
 
-    let completeCoverImage = '';
-    if (files.coverImage) {
-      const __filename = fileURLToPath(import.meta.url);
-      const __dirname = path.dirname(__filename);
-      const coverImageMimeType = files.coverImage[0].mimetype.split('/').at(-1);
+   let completeCoverImage = book.coverImage;
+   
+   
+if (files?.coverImage?.[0]) {
+    const coverFile = files.coverImage[0];
+    const uploadResult = await cloudinary.uploader.upload(coverFile.path, { folder: 'book-cover' });
+    
+    completeCoverImage = uploadResult.secure_url;
+    
+    const publicId = book.coverImage.split('/').slice(-2).join('/').split('.')[0];
+    await cloudinary.uploader.destroy(publicId);
 
-      const fileName = files.coverImage[0].filename;
-      const filePath = path.resolve(__dirname, '../../public/data/uploads', fileName);
-
-      completeCoverImage = fileName;
-
-      const uploadImageResult = await cloudinary.uploader.upload(filePath, {
-        filename_override: completeCoverImage,
-        folder: 'book-cover',
-        format: coverImageMimeType,
-      });
-
-      completeCoverImage = uploadImageResult.secure_url;
-      await fs.promises.unlink(filePath);
-
-      const coverImagesplit = book.coverImage.split('/');
-      const coverImagePublicId = coverImagesplit.at(-2) + '/' + coverImagesplit.at(-1)?.split('.').at(-2);
-      await cloudinary.uploader.destroy(coverImagePublicId);
+    await fs.promises.unlink(coverFile.path);
+}
+    let completeFile = book.file;
+   
+if (files?.file?.[0]) {
+    const pdfFile = files.file[0]; 
+    
+   
+    const uploadResult = await cloudinary.uploader.upload(pdfFile.path, { 
+        resource_type: 'raw', 
+        folder: 'book-pdfs' 
+    });
+    
+    completeFile = uploadResult.secure_url;
+       try {
+        const bookFileSplit = book.file.split('/');
+     
+        const publicId = `${bookFileSplit.at(-2)}/${bookFileSplit.at(-1)?.split('.').at(-2)}`;
+        
+        await cloudinary.uploader.destroy(publicId, {
+            resource_type: 'raw', 
+        });
+    } catch (err) {
+        return next(createHttpError(500, 'Failed to delete old file from Cloudinary'));
     }
-
-    let completeFile = '';
-    if (files.file) {
-      const __filename = fileURLToPath(import.meta.url);
-      const __dirname = path.dirname(__filename);
-
-      const BookPdfFileName = files.file[0].filename;
-      const filePdfPath = path.resolve(__dirname, '../../public/data/uploads', BookPdfFileName);
-
-      completeFile = BookPdfFileName;
-
-      const uploadFileResult = await cloudinary.uploader.upload(filePdfPath, {
-        resource_type: 'auto',
-        filename_override: completeFile,
-        folder: 'book-pdfs',
-      });
-
-      completeFile = uploadFileResult.secure_url;
-      await fs.promises.unlink(filePdfPath);
-
-      const bookFileSplit = book.file.split('/');
-      const bookFilePublicId = bookFileSplit.at(-2) + '/' + bookFileSplit.at(-1)?.split('.').at(-2);
-
-      await cloudinary.uploader.destroy(bookFilePublicId, {
-        resource_type: 'auto',
-      });
+    try {
+        await fs.promises.unlink(pdfFile.path);
+    } catch (err) {
+        return next(createHttpError(500, 'Failed to delete local temp file'));
     }
-
+}
     const updatedBook = await bookModel.findOneAndUpdate(
       {
         _id: bookId,

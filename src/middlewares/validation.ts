@@ -14,6 +14,8 @@ export const validate = <T extends z.ZodTypeAny>(schema: T) =>
             })
             next()
         } catch (error) {
+
+           
             if (error instanceof ZodError) {
 
                 const errorMessage=error.issues.map((err)=>
@@ -25,3 +27,4 @@ export const validate = <T extends z.ZodTypeAny>(schema: T) =>
            next(error);
         }
     };
+
